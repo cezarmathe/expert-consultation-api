@@ -6,9 +6,11 @@ import com.code4ro.legalconsultation.model.dto.DocumentViewDto;
 import com.code4ro.legalconsultation.model.dto.UserDto;
 import com.code4ro.legalconsultation.model.persistence.DocumentConsolidated;
 import com.code4ro.legalconsultation.model.persistence.DocumentMetadata;
+import com.code4ro.legalconsultation.model.persistence.DocumentPdfFile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Set;
@@ -39,4 +41,12 @@ public interface DocumentService {
     void assignUsers(final UUID id, final Set<UUID> userIds);
 
     List<UserDto> getAssignedUsers(final UUID id);
+
+    /**
+     * Add a PDF to this document.
+     * @param id the id of the document
+     * @param state the state of the pdf document
+     * @param document the pdf document
+     */
+    DocumentPdfFile addPdf(final UUID id, final String state, final MultipartFile document);
 }
