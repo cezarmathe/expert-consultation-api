@@ -8,13 +8,12 @@ import com.code4ro.legalconsultation.model.dto.DocumentViewDto;
 import com.code4ro.legalconsultation.model.dto.UserDto;
 import com.code4ro.legalconsultation.model.persistence.*;
 import com.code4ro.legalconsultation.service.api.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -34,6 +33,7 @@ public class DocumentServiceImpl implements DocumentService {
     private final UserMapper userMapperService;
     private final DocumentConsolidatedMapper documentConsolidatedMapper;
     private final CommentService commentService;
+    private final DocumentPdfFileService documentPdfFileService;
 
     @Autowired
     public DocumentServiceImpl(final DocumentConsolidatedService documentConsolidatedService,
@@ -44,7 +44,8 @@ public class DocumentServiceImpl implements DocumentService {
                                final UserService userService,
                                final UserMapper userMapperService,
                                final DocumentConsolidatedMapper documentConsolidatedMapper,
-                               final CommentService commentService) {
+                               final CommentService commentService,
+                               final DocumentPdfFileService documentPdfFileService) {
         this.documentConsolidatedService = documentConsolidatedService;
         this.documentMetadataService = documentMetadataService;
         this.pdfService = pdfService;
@@ -54,6 +55,7 @@ public class DocumentServiceImpl implements DocumentService {
         this.userMapperService = userMapperService;
         this.documentConsolidatedMapper = documentConsolidatedMapper;
         this.commentService = commentService;
+        this.documentPdfFileService = documentPdfFileService;
     }
 
     @Transactional(readOnly = true)
@@ -134,5 +136,23 @@ public class DocumentServiceImpl implements DocumentService {
         final List<User> assignedUsers = documentConsolidated.getAssignedUsers();
 
         return assignedUsers.stream().map(userMapperService::map).collect(Collectors.toList());
+    }
+
+    /**
+     * Add a PDF to this document.
+     * @param id the id of the document
+     * @param state the state of the pdf document
+     * @param document the pdf document
+     */
+    @Override
+    @Transactional
+    public DocumentPdfFile addPdf(final UUID id, final String state, final MultipartFile document) {
+        DocumentConsolidated documentConsolidated = documentConsolidatedService.getByDocumentMetadataId(id);
+
+        DocumentPdfFile documentPdfFile = documentPdfFileService.create(state, document);
+        documentConsolidated.getDocumentPdfFiles().add(documentPdfFile);
+        documentConsolidatedService.saveOne(documentConsolidated);
+        
+        return documentPdfFile;
     }
 }
