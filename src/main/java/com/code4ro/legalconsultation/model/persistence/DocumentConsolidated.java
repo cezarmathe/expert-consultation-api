@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "consolidated_document")
@@ -30,6 +31,9 @@ public class DocumentConsolidated extends BaseEntity {
             joinColumns = @JoinColumn(name = "document_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> assignedUsers;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "document_pdf_file")
+    private Set<DocumentPdfFile> documentPdfFiles;
 
     public DocumentConsolidated(final DocumentMetadata documentMetadata,
                                 final DocumentNode documentNode,
