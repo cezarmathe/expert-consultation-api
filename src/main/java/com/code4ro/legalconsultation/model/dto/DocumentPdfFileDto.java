@@ -10,5 +10,5 @@ public class DocumentPdfFileDto extends BaseEntityDto {
     private String state;
     private String filePath;
     private DateTime timestamp;
-    private String hash;
+    private Integer hash;
 }

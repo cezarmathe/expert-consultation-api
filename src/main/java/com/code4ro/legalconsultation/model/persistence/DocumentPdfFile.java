@@ -43,5 +43,9 @@ public class DocumentPdfFile extends BaseEntity {
      * A hash of this document to prevent duplication.
      */
     @Column(nullable = false, unique = true)
-    private String hash;
+    private Integer hash;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "document_id", referencedColumnName = "id")
+    private DocumentConsolidated documentConsolidated;
 }
