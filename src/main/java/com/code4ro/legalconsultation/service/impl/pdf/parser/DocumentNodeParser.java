@@ -84,7 +84,7 @@ public abstract class DocumentNodeParser {
     }
 
     private String getTitle() {
-        String currentLine = lines[metadata.getCurrentLineIndex()].trim();
+        String currentLine = getCurrentLine();
         if (isTokenWithoutTitle(currentLine)) {
             metadata.next();
             return currentLine;
@@ -101,6 +101,10 @@ public abstract class DocumentNodeParser {
         return result;
     }
 
+    private String getCurrentLine() {
+        return lines[metadata.getCurrentLineIndex()].trim() + " ";
+    }
+
     private void skipTitleLines(final String title) {
         String currentLine = getNextLine();
         while (title.contains(currentLine)) {
@@ -110,7 +114,7 @@ public abstract class DocumentNodeParser {
 
     public String getNextLine() {
         metadata.next();
-        return lines[metadata.getCurrentLineIndex()].trim();
+        return getCurrentLine();
     }
 
     private boolean isTokenWithoutTitle(final String currentLine) {
@@ -119,7 +123,7 @@ public abstract class DocumentNodeParser {
     }
 
     private String getNodeContent(final StringBuilder contentBuilder) {
-        String currentLine = lines[metadata.getCurrentLineIndex()].trim();
+        String currentLine = getCurrentLine();
         while (startTokenMatcher.isRegularLine(currentLine)) {
             contentBuilder.append(currentLine);
 
