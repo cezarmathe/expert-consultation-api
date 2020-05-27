@@ -24,7 +24,7 @@ public abstract class DocumentNodeParser {
     private String[] lines;
     private DocumentParsingMetadata metadata;
 
-    public DocumentNode parse(final String[] lines, DocumentParsingMetadata metadata) {
+    public DocumentNode parse(final String[] lines, final DocumentParsingMetadata metadata) {
         this.lines = lines;
         this.metadata = metadata;
 
