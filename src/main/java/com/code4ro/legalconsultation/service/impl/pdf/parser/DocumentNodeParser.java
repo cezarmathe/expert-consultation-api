@@ -136,12 +136,16 @@ public abstract class DocumentNodeParser {
 
     private List<DocumentNode> getChildrenNodes(DocumentNode documentNode) {
         final List<DocumentNode> children = new ArrayList<>();
+        Integer index = 0;
         String currentLine = lines[metadata.getCurrentLineIndex()];
         while (!isSameNodeType(currentLine) && isChildType(currentLine)) {
             final DocumentNodeParser parser = documentNodeParserFactory.getParser(currentLine);
             final DocumentNode child = parser.parse(lines, metadata);
             child.setParent(documentNode);
+            child.setIndex(index);
+            index++;
             children.add(child);
+
             currentLine = lines[metadata.getCurrentLineIndex()];
         }
 
