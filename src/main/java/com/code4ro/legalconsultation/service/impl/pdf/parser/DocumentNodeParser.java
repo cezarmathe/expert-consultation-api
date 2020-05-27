@@ -37,7 +37,9 @@ public abstract class DocumentNodeParser {
         final String title = getTitle();
         final Matcher titleMatcher = pattern.matcher(title);
         titleMatcher.find();
+
         documentNode.setIdentifier(getIdentifier(titleMatcher));
+
         if (hasTitle()) {
             setTitle(documentNode, title, titleMatcher);
         } else {
