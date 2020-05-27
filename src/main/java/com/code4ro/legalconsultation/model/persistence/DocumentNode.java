@@ -20,6 +20,7 @@ public class DocumentNode extends BaseEntity {
 
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
+    @OrderBy("index ASC")
     private List<DocumentNode> children;
 
     @Column(name = "document_node_type")
@@ -33,4 +34,7 @@ public class DocumentNode extends BaseEntity {
 
     @Column(name = "identifier")
     private String identifier;
+
+    @Column(name = "index")
+    private Integer index;
 }
