@@ -17,6 +17,10 @@ provider "aws" {
   #   - AWS_DEFAULT_REGION
 }
 
+data "aws_region" "main" {}
+
+data "aws_caller_identity" "main" {}
+
 resource "aws_ssm_parameter" "db_username" {
   name        = "/legalconsultation/MYSQL_DB_USERNAME"
   description = "The username for the legalconsultation db."
@@ -31,74 +35,35 @@ resource "aws_ssm_parameter" "db_password" {
   value       = var.db_username
 }
 
+resource "aws_ssm_parameter" "db_endpoint" {
+  name        = "/legalconsultation/MYSQL_DB_URL"
+  description = "The url for the legalconsultation db."
+  type        = "SecureString" # should this be just a string?
+  value       = aws_db_instance.main.endpoint
+}
+
 resource "aws_s3_bucket" "storage_docs" {
   bucket = "legal-consultation-documents"
   acl    = "private"
 }
 
-resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
+resource "aws_iam_role" "task_role" {
+  name = "taskExecutionRole"
+  path = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 
-  enable_dns_support   = true
-  enable_dns_hostnames = true
-
-  tags = {
-    Name = "legal-consult-vpc"
-  }
+  assume_role_policy = file("${path.module}/task_execution_role.policy.json")
 }
 
-resource "aws_subnet" "public" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.0.0/24"
+resource "aws_iam_role_policy" "task_role_policy" {
+  name = "taskExecutionRole"
+  role = aws_iam_role.task_role.id
 
-  availability_zone = "${aws.region}a"
-
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "legal-consult-public-subnet"
-  }
+  policy = templatefile("${path.module}/allow_params_policy.json.j2", {
+    region     = data.aws_region.main
+    account_id = data.aws_caller_identity.main.account_id
+  })
 }
 
-resource "aws_subnet" "private_a" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.1.0/24"
-
-  availability_zone = "${aws.region}a"
-
-  tags = {
-    Name = "legal-consult-private-subnet-a"
-  }
-}
-
-resource "aws_subnet" "private_b" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.2.0/24"
-
-  availability_zone = "${aws.region}b"
-
-  tags = {
-    Name = "legal-consult-private-subnet-b"
-  }
-}
-
-resource "aws_internet_gateway" "main" {
-  vpc_id = aws_vpc.main.id
-
-  tags = {
-    Name = "legal-consult-igw"
-  }
-}
-
-resource "aws_route_table" "main" {
-  vpc_id = aws_vpc.default.id
-
-  route {
-    cidr_block = aws_subnet.public.cidr_block
-    gateway_id = aws_internet_gateway.main.id
-  }
-
-  tags = {
-    Name = "legal-consult-route"
-  }
+resource "aws_cloudwatch_log_group" "main" {
+  name = "legal-consultation-log-group"
 }
