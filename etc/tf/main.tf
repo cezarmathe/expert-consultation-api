@@ -32,7 +32,7 @@ resource "aws_ssm_parameter" "db_password" {
   name        = "/legalconsultation/MYSQL_DB_PASSWORD"
   description = "The password for the legalconsultation db."
   type        = "SecureString"
-  value       = var.db_username
+  value       = var.db_password
 }
 
 resource "aws_ssm_parameter" "db_endpoint" {
