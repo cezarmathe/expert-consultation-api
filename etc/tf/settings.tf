@@ -12,7 +12,7 @@ locals {
 locals {
   ssm_db_username = "/${local.name_oneword}/MYSQL_DB_USERNAME"
   ssm_db_password = "/${local.name_oneword}/MYSQL_DB_PASSWORD"
-  ssm_db_url      = "/${local.name_oneword}/MYSQL_DB_ENDPOINT"
+  ssm_db_endpoint = "/${local.name_oneword}/MYSQL_DB_ENDPOINT"
 }
 
 # S3 settings.
