@@ -17,7 +17,7 @@ locals {
         logDriver = "awslogs"
         options   = {
           awslogs-group         = aws_cloudwatch_log_group.main.name
-          awslogs-region        = data.aws_region.main
+          awslogs-region        = data.aws_region.main.name
           awslogs-stream-prefix = "client"
         }
       }
@@ -37,22 +37,22 @@ locals {
         logDriver = "awslogs"
         options   = {
           awslogs-group         = aws_cloudwatch_log_group.main.name
-          awslogs-region        = data.aws_region.main
+          awslogs-region        = data.aws_region.main.name
           awslogs-stream-prefix = "api"
         }
       }
       secrets = [
         {
           name      = "MYSQL_DB_USERNAME"
-          valueFrom = "arn:aws:ssm:${data.aws_region.main}:${data.aws_caller_identify.main.account_id}:parameter/legalconsultation/MYSQL_DB_USERNAME"
+          valueFrom = "arn:aws:ssm:${data.aws_region.main.name}:${data.aws_caller_identity.main.account_id}:parameter/legalconsultation/MYSQL_DB_USERNAME"
         },
         {
           name      = "MYSQL_DB_PASSWORD"
-          valueFrom = "arn:aws:ssm:${data.aws_region.main}:${data.aws_caller_identify.main.account_id}:parameter/legalconsultation/MYSQL_DB_PASSWORD"
+          valueFrom = "arn:aws:ssm:${data.aws_region.main.name}:${data.aws_caller_identity.main.account_id}:parameter/legalconsultation/MYSQL_DB_PASSWORD"
         },
         {
           name      = "MYSQL_DB_URL"
-          valueFrom = "arn:aws:ssm:${data.aws_region.main}:${data.aws_caller_identify.main.account_id}:parameter/legalconsultation/MYSQL_DB_URL"
+          valueFrom = "arn:aws:ssm:${data.aws_region.main.name}:${data.aws_caller_identity.main.account_id}:parameter/legalconsultation/MYSQL_DB_URL"
         },
       ]
     },
@@ -89,13 +89,13 @@ resource "aws_ecr_repository" "client" {
 #   push: yes
 #   source: local
 
-resource "docker_registry_image" "client" {
-  name = "helloworld:1.0"
+# resource "docker_registry_image" "client" {
+#   name = "helloworld:1.0"
 
-  build {
-    context = "pathToContextFolder"
-  }
-}
+#   build {
+#     context = "pathToContextFolder"
+#   }
+# }
 
 resource "aws_ecr_repository" "api" {
   name = var.api_image
@@ -110,19 +110,19 @@ resource "aws_ecr_repository" "api" {
 #   push: yes
 #   source: local
 
-resource "docker_registry_image" "api" {
-  name = "helloworld:1.0"
+# resource "docker_registry_image" "api" {
+#   name = "helloworld:1.0"
 
-  build {
-    context = "pathToContextFolder"
-  }
-}
+#   build {
+#     context = "pathToContextFolder"
+#   }
+# }
 
 resource "aws_ecs_task_definition" "main" {
   family                = "legal-consult-task"
   container_definitions = jsonencode(local.main_ecs_task_definition)
 
-  requires_compatibilities = "FARGATE"
+  requires_compatibilities = ["FARGATE"]
 
   cpu          = 1024
   memory       = 2048
@@ -140,7 +140,7 @@ resource "aws_ecs_service" "main" {
   desired_count   = 1
   launch_type     = "FARGATE"
 
-  network_configuration = {
+  network_configuration {
     assign_public_ip = true
     security_groups  = [aws_security_group.web.id]
     subnets          = [aws_subnet.public.id]

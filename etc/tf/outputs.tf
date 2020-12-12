@@ -5,7 +5,7 @@ output "db_endpoint" {
 }
 
 output "api_ecr_repo" {
-  value = aws_ecr_repository.client.repository_url.api
+  value = aws_ecr_repository.api.repository_url
 }
 
 output "client_ecr_repo" {

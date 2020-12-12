@@ -1,48 +1,48 @@
 # expert-consultation-api - networking
 
 resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block = local.vpc_cidr_block
 
   enable_dns_support   = true
   enable_dns_hostnames = true
 
   tags = {
-    Name = "legal-consult-vpc"
+    Name = local.vpc_name
   }
 }
 
 resource "aws_subnet" "public" {
   vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.0.0/24"
+  cidr_block = local.public_subnet_cidr_block
 
-  availability_zone = "${data.aws_region.main}a"
+  availability_zone = "${data.aws_region.main.name}a"
 
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "legal-consult-public-subnet"
+    Name = local.public_subnet_name
   }
 }
 
 resource "aws_subnet" "private_a" {
   vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.1.0/24"
+  cidr_block = local.private_subnet_a_cidr_block
 
-  availability_zone = "${data.aws_region.main}a"
+  availability_zone = private_subnet_a_az
 
   tags = {
-    Name = "legal-consult-private-subnet-a"
+    Name = local.private_subnet_a_name
   }
 }
 
 resource "aws_subnet" "private_b" {
   vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.2.0/24"
+  cidr_block = local.private_subnet_b_cidr_block
 
-  availability_zone = "${data.aws_region.main}b"
+  availability_zone = private_subnet_b_az
 
   tags = {
-    Name = "legal-consult-private-subnet-b"
+    Name = local.private_subnet_b_name
   }
 }
 
@@ -50,7 +50,7 @@ resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "legal-consult-igw"
+    Name = local.igw_name
   }
 }
 
@@ -63,12 +63,12 @@ resource "aws_route_table" "main" {
   }
 
   tags = {
-    Name = "legal-consult-route"
+    Name = local.route_table_name
   }
 }
 
 resource "aws_security_group" "web" {
-  name        = "legal-consultation-security-group"
+  name        = local.web_security_group_name
   description = "Security Group for legal consultation."
   vpc_id      = aws_vpc.main.id
 

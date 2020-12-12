@@ -1,7 +1,7 @@
 # expert-consultation-api - database
 
 resource "aws_security_group" "db" {
-  name        = "rds-legal-consultation-security-group"
+  name        = local.db_security_group_name
   description = "Security Group for legal consultation database."
   vpc_id      = aws_vpc.main.id
 
@@ -15,7 +15,7 @@ resource "aws_security_group" "db" {
 }
 
 resource "aws_db_subnet_group" "main" {
-  name       = "legal-consultation-subnet-group"
+  name       = local.db_subnet_group_name
   subnet_ids = [
     aws_subnet.private_a.id,
     aws_subnet.private_b.id
@@ -27,7 +27,7 @@ resource "aws_db_instance" "main" {
   storage_type      = "gp2" # this is the default
   engine            = "mysql"
   instance_class    = var.db_instance_type
-  identifier        = "legalconsult"
+  identifier        = local.db_identifier
   username          = var.db_username
   password          = var.db_password
 
