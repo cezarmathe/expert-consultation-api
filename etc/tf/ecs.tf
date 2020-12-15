@@ -3,7 +3,7 @@
 locals {
   main_ecs_task_definition = [
     {
-      name   = "legal-client"
+      name   = local.client_task_name
       image  = "${aws_ecr_repository.client.repository_url}:latest"
       cpu    = 512
       memory = 1024
@@ -23,7 +23,7 @@ locals {
       }
     },
     {
-      name   = "legal-api"
+      name   = local.api_task_name
       image  = "${aws_ecr_repository.api.repository_url}:latest"
       cpu    = 512
       memory = 1024
@@ -43,16 +43,16 @@ locals {
       }
       secrets = [
         {
-          name      = "MYSQL_DB_USERNAME"
-          valueFrom = "arn:aws:ssm:${data.aws_region.main.name}:${data.aws_caller_identity.main.account_id}:parameter/legalconsultation/MYSQL_DB_USERNAME"
+          name      = local.ssm_db_username
+          valueFrom = "arn:aws:ssm:${data.aws_region.main.name}:${data.aws_caller_identity.main.account_id}:parameter/${local.ssm_db_username_path}"
         },
         {
-          name      = "MYSQL_DB_PASSWORD"
-          valueFrom = "arn:aws:ssm:${data.aws_region.main.name}:${data.aws_caller_identity.main.account_id}:parameter/legalconsultation/MYSQL_DB_PASSWORD"
+          name      = local.ssm_db_password
+          valueFrom = "arn:aws:ssm:${data.aws_region.main.name}:${data.aws_caller_identity.main.account_id}:parameter/${local.ssm_db_password_path}"
         },
         {
-          name      = "MYSQL_DB_URL"
-          valueFrom = "arn:aws:ssm:${data.aws_region.main.name}:${data.aws_caller_identity.main.account_id}:parameter/legalconsultation/MYSQL_DB_URL"
+          name      = local.ssm_db_endpoint
+          valueFrom = "arn:aws:ssm:${data.aws_region.main.name}:${data.aws_caller_identity.main.account_id}:parameter/${local.ssm_db_endpoint_path}"
         },
       ]
     },
@@ -119,7 +119,7 @@ resource "aws_ecr_repository" "api" {
 # }
 
 resource "aws_ecs_task_definition" "main" {
-  family                = "legal-consult-task"
+  family                = local.taskdef_family
   container_definitions = jsonencode(local.main_ecs_task_definition)
 
   requires_compatibilities = ["FARGATE"]
@@ -130,11 +130,11 @@ resource "aws_ecs_task_definition" "main" {
 }
 
 resource "aws_ecs_cluster" "main" {
-  name = "legal-consult-cluster"
+  name = local.cluster_name
 }
 
 resource "aws_ecs_service" "main" {
-  name            = "legal-consult-cluster-service"
+  name            = local.service_name
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.main.arn
   desired_count   = 1

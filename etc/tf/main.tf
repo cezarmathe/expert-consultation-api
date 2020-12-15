@@ -22,21 +22,21 @@ data "aws_region" "main" {}
 data "aws_caller_identity" "main" {}
 
 resource "aws_ssm_parameter" "db_username" {
-  name        = local.ssm_db_username
+  name        = "/${local.ssm_db_username_path}"
   description = "The username for the legalconsultation db."
   type        = "SecureString"
   value       = var.db_username
 }
 
 resource "aws_ssm_parameter" "db_password" {
-  name        = local.ssm_db_password
+  name        = "/${local.ssm_db_password_path}"
   description = "The password for the legalconsultation db."
   type        = "SecureString"
   value       = var.db_password
 }
 
 resource "aws_ssm_parameter" "db_endpoint" {
-  name        = local.ssm_db_endpoint
+  name        = "/${local.ssm_db_endpoint_path}"
   description = "The endpoint for the legalconsultation db."
   type        = "SecureString" # should this be just a string?
   value       = aws_db_instance.main.endpoint
@@ -65,5 +65,5 @@ resource "aws_iam_role_policy" "task_role_policy" {
 }
 
 resource "aws_cloudwatch_log_group" "main" {
-  name = "legal-consultation-log-group"
+  name = local.cloudwatch_log_group_name
 }

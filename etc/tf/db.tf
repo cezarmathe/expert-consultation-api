@@ -23,7 +23,7 @@ resource "aws_db_subnet_group" "main" {
 }
 
 resource "aws_db_instance" "main" {
-  allocated_storage = 10
+  allocated_storage = local.db_allocated_storage
   storage_type      = "gp2" # this is the default
   engine            = "mysql"
   instance_class    = var.db_instance_type
